@@ -4,6 +4,7 @@ using System.Web.Http;
 using AspNetFrameworkHosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Owin.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -17,6 +18,7 @@ var builder = AspNetWebApplication.CreateBuilder();
 
 builder.ConfigureServices(services =>
 {
+    services.AddHostedService<PeriodicBackgroundService>();
     services.AddSingleton<IUserStoreService, UserStoreService>();
 
     // 必ず最後に呼ぶ
@@ -54,6 +56,11 @@ builder.ConfigureServices(services =>
         config.EnsureInitialized();
         appBuilder.UseWebApi(config);
     });
+});
+builder.ConfigureLogging((_, logging) =>
+{
+    logging.ClearProviders();
+    logging.AddSimpleConsole();
 });
 
 var app = builder.Build();

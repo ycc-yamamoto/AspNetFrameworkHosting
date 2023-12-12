@@ -3,16 +3,17 @@ using AspNetFrameworkHosting.Internals;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace AspNetFrameworkHosting;
 
 public sealed class AspNetWebApplicationBuilder
 {
-    private readonly HostBuilder builder;
+    private readonly IHostBuilder builder;
 
     internal AspNetWebApplicationBuilder()
     {
-        this.builder = new HostBuilder();
+        this.builder = Host.CreateDefaultBuilder();
     }
 
     public AspNetWebApplication Build()
@@ -54,6 +55,12 @@ public sealed class AspNetWebApplicationBuilder
     public AspNetWebApplicationBuilder ConfigureServices(Action<IServiceCollection> configureDelegate)
     {
         this.builder.ConfigureServices(configureDelegate);
+        return this;
+    }
+
+    public AspNetWebApplicationBuilder ConfigureLogging(Action<HostBuilderContext, ILoggingBuilder> configureLogging)
+    {
+        this.builder.ConfigureLogging(configureLogging);
         return this;
     }
 
