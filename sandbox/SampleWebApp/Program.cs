@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Formatting;
+﻿using System.IO;
+using System.Net.Http.Formatting;
 using System.Reflection;
 using System.Web.Http;
 using AspNetFrameworkHosting;
@@ -12,6 +13,8 @@ using NSwag.AspNet.Owin;
 using Owin;
 using SampleWebApp.Services;
 using SampleWebApp.Services.Impl;
+using Serilog;
+using Serilog.Events;
 
 var startOptions = new StartOptions("http://localhost:5000");
 var builder = AspNetWebApplication.CreateBuilder();
@@ -60,7 +63,20 @@ builder.ConfigureServices(services =>
 builder.ConfigureLogging((_, logging) =>
 {
     logging.ClearProviders();
-    logging.AddSimpleConsole();
+
+    var baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+    var logger = new LoggerConfiguration()
+        .WriteTo.Console()
+        .WriteTo.Async(w => w.File(
+            $"{Path.Combine(baseDirectory, "logs", "log-.log")}",
+            restrictedToMinimumLevel: LogEventLevel.Information,
+            outputTemplate:
+            "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ThreadId}] {Message:lj}{NewLine}{Exception}",
+            rollingInterval: RollingInterval.Day))
+        .Enrich.WithThreadId()
+        .CreateLogger();
+
+    logging.AddSerilog(logger: logger, dispose: true);
 });
 
 var app = builder.Build();
