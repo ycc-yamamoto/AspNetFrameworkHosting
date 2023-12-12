@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{A6CE93CF-5870-4507-9A71-325D9D9F8A8E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AspNetFrameworkHosting", "src\AspNetFrameworkHosting\AspNetFrameworkHosting.csproj", "{FEAFF2F9-2DDA-465D-8C3E-530D651A33A9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sandbox", "sandbox", "{E75161A4-663C-48BC-930F-722958E1C472}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleWebApp", "sandbox\SampleWebApp\SampleWebApp.csproj", "{3F37E513-6BBF-4D70-A7E3-8846AB087826}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{FEAFF2F9-2DDA-465D-8C3E-530D651A33A9} = {A6CE93CF-5870-4507-9A71-325D9D9F8A8E}
+		{3F37E513-6BBF-4D70-A7E3-8846AB087826} = {E75161A4-663C-48BC-930F-722958E1C472}
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FEAFF2F9-2DDA-465D-8C3E-530D651A33A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEAFF2F9-2DDA-465D-8C3E-530D651A33A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEAFF2F9-2DDA-465D-8C3E-530D651A33A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEAFF2F9-2DDA-465D-8C3E-530D651A33A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F37E513-6BBF-4D70-A7E3-8846AB087826}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F37E513-6BBF-4D70-A7E3-8846AB087826}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F37E513-6BBF-4D70-A7E3-8846AB087826}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F37E513-6BBF-4D70-A7E3-8846AB087826}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
