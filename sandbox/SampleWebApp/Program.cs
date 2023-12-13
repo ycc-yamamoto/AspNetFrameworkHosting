@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Globalization;
-using System.IO;
 using System.Net.Http.Formatting;
-using System.Reflection;
 using System.Web.Http;
 using AspNetFrameworkHosting;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,7 +13,6 @@ using Owin;
 using SampleWebApp.Services;
 using SampleWebApp.Services.Impl;
 using Serilog;
-using Serilog.Events;
 
 var builder = AspNetWebApplication.CreateBuilder();
 
@@ -67,21 +63,12 @@ builder.ConfigureServices((context, services) =>
         appBuilder.UseWebApi(config);
     });
 });
-builder.ConfigureLogging((_, logging) =>
+builder.ConfigureLogging((context, logging) =>
 {
     logging.ClearProviders();
 
-    var baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
     var logger = new LoggerConfiguration()
-        .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
-        .WriteTo.Async(w => w.File(
-            $"{Path.Combine(baseDirectory, "logs", "log-.log")}",
-            restrictedToMinimumLevel: LogEventLevel.Information,
-            outputTemplate:
-            "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ThreadId}] {Message:lj}{NewLine}{Exception}",
-            rollingInterval: RollingInterval.Day,
-            formatProvider: CultureInfo.InvariantCulture))
-        .Enrich.WithThreadId()
+        .ReadFrom.Configuration(context.Configuration.GetSection("Logging"))
         .CreateLogger();
 
     logging.AddSerilog(logger: logger, dispose: true);
