@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Web.Http;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using SampleWebApp.Dto;
+using SampleWebApp.Extensions;
 using SampleWebApp.Services;
 
 namespace SampleWebApp.Controllers;
@@ -23,7 +25,7 @@ public class UserController : ApiController
     [Route]
     public IEnumerable<UserDto> Get()
     {
-        this.logger.LogInformation("GET /api/users");
+        this.logger.ReceivedHttpRequest("GET", "/api/users");
         return this.userStoreService.GetAll();
     }
 
@@ -31,7 +33,7 @@ public class UserController : ApiController
     [Route("{id}")]
     public IHttpActionResult Get(int id)
     {
-        this.logger.LogInformation($"GET /api/users/{id}");
+        this.logger.ReceivedHttpRequest("GET", $"/api/users/{id}");
         var user = this.userStoreService.GetById(id);
 
         return user is null ? this.NotFound() : this.Ok(user);
@@ -41,21 +43,33 @@ public class UserController : ApiController
     [Route]
     public void Post([FromBody] UserDto user)
     {
-        this.logger.LogInformation($"POST /api/users: {user.Name}");
+        this.logger.ReceivedHttpRequest("POST", $"/api/users: {user?.Name}");
+
+        if (user is null)
+        {
+            return;
+        }
+
         this.userStoreService.Register(user.Name);
     }
 
     [HttpPut]
     [Route("{id}")]
-    public void Put(int id, [FromBody] string value)
+    public IHttpActionResult Put(int id, [FromBody] UserDto user)
     {
-        this.logger.LogInformation($"PUT /api/users/{id}: {value}");
+        this.logger.ReceivedHttpRequest("PUT", $"/api/users/{id}: {JsonConvert.SerializeObject(user)}");
+
+        var updatedUser = this.userStoreService.UpdateById(id, user);
+
+        return updatedUser is null ? this.NotFound() : this.Ok(updatedUser);
     }
 
     [HttpDelete]
     [Route("{id}")]
-    public void Delete(int id)
+    public IHttpActionResult Delete(int id)
     {
-        this.logger.LogInformation($"DELETE /api/users/{id}");
+        this.logger.ReceivedHttpRequest( "DELETE", $"/api/users/{id}");
+
+        return this.userStoreService.RemoveById(id) ? this.Ok() : this.NotFound();
     }
 }

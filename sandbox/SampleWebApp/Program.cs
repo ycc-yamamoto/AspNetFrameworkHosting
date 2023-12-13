@@ -1,4 +1,6 @@
-﻿using System.IO;
+﻿using System;
+using System.Globalization;
+using System.IO;
 using System.Net.Http.Formatting;
 using System.Reflection;
 using System.Web.Http;
@@ -36,7 +38,7 @@ builder.ConfigureServices(services =>
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
         };
-        appBuilder.UseSwaggerUi3(Assembly.GetCallingAssembly(), setting =>
+        appBuilder.UseSwaggerUi3(typeof(Program).Assembly, setting =>
         {
             // setting.SwaggerRoutes.Add(new SwaggerUi3Route("v1", "/swagger/v1/swagger.json"));
             setting.GeneratorSettings.Title = "SampleWebApp";
@@ -44,14 +46,15 @@ builder.ConfigureServices(services =>
             setting.GeneratorSettings.Version = "v1";
             setting.TransformToExternalPath = (internalUiRoute, request) =>
             {
-                var path = internalUiRoute.EndsWith("swagger.json") && !string.IsNullOrEmpty(request.PathBase.Value)
+                var path = internalUiRoute.EndsWith("swagger.json", StringComparison.InvariantCulture) &&
+                           !string.IsNullOrEmpty(request.PathBase.Value)
                     ? $"{request.PathBase.Value}{internalUiRoute}"
                     : internalUiRoute;
 
                 return path;
             };
         });
-        appBuilder.UseSwaggerReDoc(setting =>
+        appBuilder.UseSwaggerReDoc(typeof(Program).Assembly, setting =>
         {
             setting.Path = "/redoc";
         });
@@ -64,15 +67,16 @@ builder.ConfigureLogging((_, logging) =>
 {
     logging.ClearProviders();
 
-    var baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+    var baseDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
     var logger = new LoggerConfiguration()
-        .WriteTo.Console()
+        .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
         .WriteTo.Async(w => w.File(
             $"{Path.Combine(baseDirectory, "logs", "log-.log")}",
             restrictedToMinimumLevel: LogEventLevel.Information,
             outputTemplate:
             "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] [{ThreadId}] {Message:lj}{NewLine}{Exception}",
-            rollingInterval: RollingInterval.Day))
+            rollingInterval: RollingInterval.Day,
+            formatProvider: CultureInfo.InvariantCulture))
         .Enrich.WithThreadId()
         .CreateLogger();
 

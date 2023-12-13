@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SampleWebApp.Extensions;
 
 namespace SampleWebApp.Services.Impl;
 
@@ -32,6 +33,6 @@ public sealed class PeriodicBackgroundService : BackgroundService
 
     private void PeriodicAction()
     {
-        this.logger.LogInformation($"Do periodic action. ({DateTime.Now:yyyy-MM-dd HH:mm:ss})");
+        this.logger.DoActionPeriodicBackgroundProcess(DateTime.Now);
     }
 }
