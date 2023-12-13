@@ -18,13 +18,14 @@ using SampleWebApp.Services.Impl;
 using Serilog;
 using Serilog.Events;
 
-var startOptions = new StartOptions("http://localhost:5000");
 var builder = AspNetWebApplication.CreateBuilder();
 
-builder.ConfigureServices(services =>
+builder.ConfigureServices((context, services) =>
 {
     services.AddHostedService<PeriodicBackgroundService>();
     services.AddSingleton<IUserStoreService, UserStoreService>();
+
+    var startOptions = new StartOptions(context.Configuration["Environment:SiteUrl"]);
 
     // 必ず最後に呼ぶ
     services.AddAspNetFrameworkHosting(startOptions, appBuilder =>
@@ -38,26 +39,29 @@ builder.ConfigureServices(services =>
         {
             ContractResolver = new CamelCasePropertyNamesContractResolver(),
         };
-        appBuilder.UseSwaggerUi3(typeof(Program).Assembly, setting =>
-        {
-            // setting.SwaggerRoutes.Add(new SwaggerUi3Route("v1", "/swagger/v1/swagger.json"));
-            setting.GeneratorSettings.Title = "SampleWebApp";
-            setting.GeneratorSettings.Description = "SampleWebApp";
-            setting.GeneratorSettings.Version = "v1";
-            setting.TransformToExternalPath = (internalUiRoute, request) =>
-            {
-                var path = internalUiRoute.EndsWith("swagger.json", StringComparison.InvariantCulture) &&
-                           !string.IsNullOrEmpty(request.PathBase.Value)
-                    ? $"{request.PathBase.Value}{internalUiRoute}"
-                    : internalUiRoute;
 
-                return path;
-            };
-        });
-        appBuilder.UseSwaggerReDoc(typeof(Program).Assembly, setting =>
+        if (context.HostingEnvironment.IsDevelopment())
         {
-            setting.Path = "/redoc";
-        });
+            appBuilder.UseSwaggerUi3(typeof(Program).Assembly, setting =>
+            {
+                var swaggerSettings = context.Configuration.GetSection("Swagger:Version1.0");
+
+                setting.GeneratorSettings.Title = swaggerSettings["Title"];
+                setting.GeneratorSettings.Description = swaggerSettings["Description"];
+                setting.GeneratorSettings.Version = swaggerSettings["Version"];
+                setting.TransformToExternalPath = (internalUiRoute, request) =>
+                {
+                    var path = internalUiRoute.EndsWith("swagger.json", StringComparison.InvariantCulture) &&
+                               !string.IsNullOrEmpty(request.PathBase.Value)
+                        ? $"{request.PathBase.Value}{internalUiRoute}"
+                        : internalUiRoute;
+
+                    return path;
+                };
+            });
+            appBuilder.UseSwaggerReDoc(typeof(Program).Assembly, setting => { setting.Path = "/redoc"; });
+        }
+
         config.MapHttpAttributeRoutes();
         config.EnsureInitialized();
         appBuilder.UseWebApi(config);
